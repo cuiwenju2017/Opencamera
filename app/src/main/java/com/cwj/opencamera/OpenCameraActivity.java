@@ -4,12 +4,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -23,7 +30,10 @@ import com.zackratos.ultimatebarx.library.UltimateBarX;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OpenCameraActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,6 +42,7 @@ public class OpenCameraActivity extends AppCompatActivity implements View.OnClic
     ImageView imgCapter;
     GLCameraView mCameraView;
     RecyclerView rv;
+    private ImageView iv;
 
     private boolean mRecordingEnabled = false;  // controls button state
     private int mode = 1;     //1.capture 2.record
@@ -57,10 +68,12 @@ public class OpenCameraActivity extends AppCompatActivity implements View.OnClic
         imgFilter = findViewById(R.id.img_filter);
         mCameraView = findViewById(R.id.glcamera);
         rv = findViewById(R.id.rv);
+        iv = findViewById(R.id.iv);
 
         imgSwitch.setOnClickListener(this);
         imgFilter.setOnClickListener(this);
         imgCapter.setOnClickListener(this);
+        iv.setOnClickListener(this);
 
         initFilters();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -136,6 +149,11 @@ public class OpenCameraActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv://相册
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setType("image/*");
+                this.startActivity(intent);
+                break;
             case R.id.img_switch:
                 mCameraView.switchCamera();
                 break;
