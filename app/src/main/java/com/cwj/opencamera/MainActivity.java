@@ -23,6 +23,12 @@ import com.atech.glcamera.interfaces.FilteredBitmapCallback;
 import com.atech.glcamera.utils.FileUtils;
 import com.atech.glcamera.utils.FilterFactory;
 import com.atech.glcamera.views.GLCameraView;
+import com.permissionx.guolindev.PermissionX;
+import com.permissionx.guolindev.callback.ExplainReasonCallbackWithBeforeParam;
+import com.permissionx.guolindev.callback.ForwardToSettingsCallback;
+import com.permissionx.guolindev.callback.RequestCallback;
+import com.permissionx.guolindev.request.ExplainScope;
+import com.permissionx.guolindev.request.ForwardScope;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,49 +43,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.btn).setOnClickListener(view -> {
-            if (checkPemission() && checkCameraHardware(MainActivity.this)) {
-                startActivity(new Intent(this, OpenCameraActivity.class));
-            } else {
-                Toast.makeText(MainActivity.this, "permission request", Toast.LENGTH_SHORT).show();
-            }
+
+            PermissionX.init(this)
+                    .permissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
+                    .request((allGranted, grantedList, deniedList) -> {
+                        if (allGranted) {
+                            startActivity(new Intent(this, OpenCameraActivity.class));
+                        } else {
+                            Toast.makeText(MainActivity.this, "同意权限后才能操作哦", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
         });
-    }
-
-    /**
-     * Check if this device has a camera
-     */
-    private boolean checkCameraHardware(Context context) {
-        // this device has a camera
-        // no camera on this device
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
-
-    }
-
-    private int read;
-    private int write;
-    private int camera;
-    private int record;
-    public static final int CameraPermision = 100;
-
-    private boolean checkPemission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            read = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-            write = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            camera = checkSelfPermission(Manifest.permission.CAMERA);
-            record = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
-
-            if (read != PackageManager.PERMISSION_GRANTED || write != PackageManager.PERMISSION_GRANTED
-                    || camera != PackageManager.PERMISSION_GRANTED || record != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.RECORD_AUDIO
-                }, CameraPermision);
-                return false;
-            }
-        }
-        return true;
     }
 }
